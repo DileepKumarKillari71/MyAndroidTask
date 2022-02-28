@@ -2,55 +2,56 @@ package com.example.task
 
 import androidx.appcompat.app.AppCompatActivity
 import com.example.task.my_interface.HerosContract
-import androidx.recyclerview.widget.RecyclerView
 import com.example.task.pojo.Hero
 import com.example.task.adapter.HerosAdapter
-import android.widget.ProgressBar
 import com.example.task.presenter.HerosPresenter
 import android.os.Bundle
 import android.view.View
-import com.example.task.R
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.Toast
+import com.example.task.databinding.ActivityMainBinding
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity(), HerosContract.View {
-    private var recyclerView: RecyclerView? = null
     private val herosList: MutableList<Hero> = ArrayList()
     private var herosAdapter: HerosAdapter? = null
     private val TAG = "MainActivity"
-    private var progressbar: ProgressBar? = null
     private var herosPresenter: HerosPresenter? = null
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        // init UI
-        initUi()
-        //init presenter
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+// init Recyclerview
+        initRecyclerview()
+//init presenter
         herosPresenter = HerosPresenter(this)
-        herosPresenter!!.loadDataFromApi()
+        herosPresenter?.loadDataFromApi()
     }
 
-    private fun initUi() {
-        progressbar = findViewById<View>(R.id.progressbar) as ProgressBar
-        recyclerView = findViewById<View>(R.id.recyclerView) as RecyclerView
-        recyclerView!!.layoutManager = LinearLayoutManager(this)
+    private fun initRecyclerview() {
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
         herosAdapter = HerosAdapter(this@MainActivity)
-        recyclerView!!.adapter = herosAdapter
+        binding.recyclerView.adapter = herosAdapter;
     }
 
     override fun showProgressDialog() {
-        progressbar!!.visibility = View.VISIBLE
+        binding.progressbar.visibility = View.VISIBLE
     }
 
     override fun hideProgressDialog() {
-        progressbar!!.visibility = View.INVISIBLE
+        binding.progressbar.visibility = View.INVISIBLE
     }
 
     override fun setDataToRecyclerView(data: List<Hero>) {
-        herosList.clear()
-        herosList.addAll(data)
-        herosAdapter!!.setData(herosList)
+        data?.let {
+            herosList.clear()
+            herosList.addAll(data)
+            herosAdapter?.setData(herosList) } ?: run {
+            Toast.makeText(this, "data not existed", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onResponseFailiure(throwable: Throwable) {
@@ -59,6 +60,6 @@ class MainActivity : AppCompatActivity(), HerosContract.View {
 
     override fun onDestroy() {
         super.onDestroy()
-        herosPresenter!!.onDestroy()
+        herosPresenter?.onDestroy()
     }
 }

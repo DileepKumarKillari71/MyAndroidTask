@@ -12,24 +12,18 @@ class HerosPresenter(private var herosView: HerosContract.View?) : Presenter, On
         herosView = null;
     }
     override fun loadDataFromApi() {
-        if (herosView != null) {
-            herosView!!.showProgressDialog()
-        }
+        herosView?.showProgressDialog()
         herosModel.getHerosList(this)
     }
     override fun onFinished(data: List<Hero>?) {
-        if (data != null && !data.isEmpty()) {
-            herosView!!.setDataToRecyclerView(data)
+        data?.let {
+            herosView?.setDataToRecyclerView(it)
         }
-        if (herosView != null) {
-            herosView!!.hideProgressDialog()
-        }
+        herosView?.hideProgressDialog()
     }
     override fun onFail(throwable: Throwable) {
-        herosView!!.onResponseFailiure(throwable)
-        if (herosView != null) {
-            herosView!!.hideProgressDialog()
-        }
+        herosView?.onResponseFailiure(throwable)
+        herosView?.hideProgressDialog()
     }
     init {
         herosModel = HerosListModel()

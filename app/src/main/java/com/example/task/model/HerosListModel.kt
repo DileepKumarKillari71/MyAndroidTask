@@ -12,10 +12,12 @@ import retrofit2.Response
 class HerosListModel : HerosContract.Model {
     /*below method will provide the all heros list*/
     override fun getHerosList(onFinishListener: OnFinishListener) {
-        Api.getInstance().retrofit.doGetListResources()
+        var apiInterface = Api.getInstance().apiInterface;
+        apiInterface?.let {
+            apiInterface.doGetListResources()
                 .enqueue(object : Callback<ResponseData<List<Hero>>> {
                     override fun onResponse(call: Call<ResponseData<List<Hero>>>, response: Response<ResponseData<List<Hero>>>) {
-                        val data = response.body()!!.data
+                        val data = response.body()?.data
                         onFinishListener.onFinished(data)
                     }
                     override fun onFailure(call: Call<ResponseData<List<Hero>>>, t: Throwable) {
@@ -23,6 +25,9 @@ class HerosListModel : HerosContract.Model {
                         call.cancel()
                     }
                 })
+        }?: run{
+            onFinishListener.onFail(Throwable("issue while fetch data"))
+        }
     }
 }
 
